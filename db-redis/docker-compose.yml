@@ -1,0 +1,34 @@
+version: '3.8'
+
+volumes:
+  redisdata01:
+    driver: local
+
+networks:
+  backend:
+    external: true
+    # $ docker network create --driver overlay --attachable backend
+##############################################################################
+services:
+  redis-server:
+    # build a custom image - override the default redis.conf if required
+    image: custom-redis:0.9
+    build:
+      context: ./
+    ports:
+      # - "6379:6379" # not safe to allow ports
+      - "127.0.0.1:6379:6379"
+    volumes:
+      # - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redisdata01:/data
+    networks:
+      - backend
+
+########### use the official image for insight #################
+  insight:
+    image: redislabs/redisinsight:1.10.0
+    ports:
+       -  "8001:8001" 
+    networks:
+      - backend   
+##############################################################################
